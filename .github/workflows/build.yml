@@ -5,7 +5,7 @@ name: Build
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build Test
+    name: Build Mediapad4
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -45,17 +45,8 @@ jobs:
         id: west-zephyr-export
         with:
           args: 'zephyr-export'
-      - name: West Build (KEYBOARD_TITLE)
+      - name: West Build (Mediapad4)
         uses: 'docker://zmkfirmware/zephyr-west-action-arm:latest'
-        id: west-build-SHIELD_NAME
+        id: west-build-mediapad4
         with:
-          args: 'build "-s zmk/app -b BOARD_NAME -- -DSHIELD=SHIELD_NAME -DZMK_CONFIG=/github/workspace/config"'
-      - name: KEYBOARD_TITLE Kconfig file
-        run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
-      - name: Rename zmk.uf2
-        run: cp build/zephyr/zmk.uf2 SHIELD_NAME_BOARD_NAME.uf2
-      - name: Archive (KEYBOARD_TITLE)
-        uses: actions/upload-artifact@v2
-        with:
-          name: firmware
-          path: SHIELD_NAME_BOARD_NAME.uf2
+          args: 'build "-s zmk/app -b nice_nano_v2 -- -D
