@@ -24,13 +24,12 @@ jobs:
             -v "${GITHUB_WORKSPACE}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            -c " \
-              # We must now explicitly call 'west' for all subcommands, since the entrypoint is overridden
+            -c "\
               west init -l . && \
               west update -r && \
               west zephyr-export && \
               west build -d build -b mediapad3 \
-        "
+            "
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
