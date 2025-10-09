@@ -30,7 +30,7 @@ jobs:
       - name: Init and update west
         run: |
           west init -l .
-          west update -r config/west.yml
+          west update -r west.yml
           west zephyr-export
 
       # 5️⃣ Build firmware for mediapad3
