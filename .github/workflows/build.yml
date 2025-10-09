@@ -1,52 +1,34 @@
 on: [push, pull_request, workflow_dispatch]
 
-name: Build
+name: Build MediPad3
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build Mediapad4
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Cache west modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-zephyr-modules
-        with:
-          path: |
-            modules/
-            tools/
-            zephyr/
-            bootloader/
-            zmk/
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('manifest-dir/west.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+        uses: actions/checkout@v3
+
       - name: West Init
         uses: 'docker://zmkfirmware/zephyr-west-action-arm:latest'
-        id: west-init
         with:
           args: 'init "-l config"'
+
       - name: West Update
         uses: 'docker://zmkfirmware/zephyr-west-action-arm:latest'
-        id: west-update
         with:
           args: 'update'
-      - name: West Config Zephyr Base
+
+      - name: Build Firmware
         uses: 'docker://zmkfirmware/zephyr-west-action-arm:latest'
-        id: west-config
         with:
-          args: 'config "--global zephyr.base-prefer configfile"'
-      - name: West Zephyr Export
-        uses: 'docker://zmkfirmware/zephyr-west-action-arm:latest'
-        id: west-zephyr-export
+          args: 'build "-s zmk/app -b mediapad_nrf52840 -- -DSHIELD=mediapad3 -DZMK_CONFIG=/github/workspace/config"'
+
+      - name: Rename output
+        run: cp build/zephyr/zmk.uf2 mediapad3_nrf52840.uf2
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
-          args: 'zephyr-export'
-      - name: West Build (Mediapad4)
-        uses: 'docker://zmkfirmware/zephyr-west-action-arm:latest'
-        id: west-build-mediapad4
-        with:
-          args: 'build "-s zmk/app -b nice_nano_v2 -- -D
+          name: firmware
+          path: mediapad3_nrf52840.uf2
