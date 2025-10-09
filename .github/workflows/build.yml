@@ -28,7 +28,7 @@ jobs:
               pip3 install west --upgrade && \
               west init -l . && \
               west update -r && \
-              west zephyr-export && \
+              west zephyr-export && 
             "
 
       - name: Upload build artifact
