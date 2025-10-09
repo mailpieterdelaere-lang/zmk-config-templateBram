@@ -28,7 +28,7 @@ jobs:
             -c " \ 
               # 1. Upgrade west to meet the ZMK requirement
               pip3 install west --upgrade && \
-              # 2. Initialize the workspace
+              # 2. Initialize the workspace (required by west for context)
               west init -l . && \
               # 3. Download the dependencies (ZMK is cloned to 'zmk/', which contains the Zephyr submodule)
               west update -r && \
@@ -36,9 +36,9 @@ jobs:
               # This will show you the directory name where Zephyr was cloned.
               ls -F && \
               # =============================================
-              # 4. Build the firmware: Set ZEPHYR_BASE to the expected path based on your west.yml
-              #    (Your manifest puts ZMK at 'zmk/', and Zephyr is inside ZMK).
-              export ZEPHYR_BASE=zmk/zephyr && \
+              # 4. Build the firmware: Set ZEPHYR_BASE using an absolute path for reliability.
+              #    Based on your west.yml, the path is expected to be /workspace/zmk/zephyr.
+              export ZEPHYR_BASE=\"/workspace/zmk/zephyr\" && \
               west build -d build -b mediapad3
             "
 
