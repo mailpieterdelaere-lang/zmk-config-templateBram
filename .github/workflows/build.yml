@@ -33,7 +33,7 @@ jobs:
               # 3. Download dependencies
               west update && \
               # 4. Source the Zephyr environment to ensure 'west build' is available
-              source /opt/toolchains/zephyr-sdk/environment-setup.sh && \
+              west zephyr-export && \
               # 5. Build the firmware
               west build -d build -b mediapad3
             "
