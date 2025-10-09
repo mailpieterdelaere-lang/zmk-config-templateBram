@@ -17,6 +17,7 @@ jobs:
       - name: Pull ZMK Docker image
         run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
+      # Fix: Override the 'west' ENTRYPOINT with /bin/bash, then explicitly call 'west' subcommands.
       - name: Build mediapad3 firmware
         run: |
           docker run --rm \
@@ -24,11 +25,15 @@ jobs:
             -v "${GITHUB_WORKSPACE}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            -c "\
+            -c " \
+              # 1. Upgrade west to meet the ZMK requirement
               pip3 install --upgrade west && \
+              # 2. Initialize the workspace
               west init -l . && \
+              # 3. Download dependencies
               west update && \
-              west zephyr-export && \
+              # 4. Build the firmware
+              west build -d build -b mediapad3
             "
 
       - name: Upload build artifact
