@@ -25,10 +25,10 @@ jobs:
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
             -c "\
-              pip3 install west --upgrade && \
+              pip3 install --upgrade west && \
               west init -l . && \
-              west update -r && \
-              west zephyr-export && 
+              west update && \
+              west zephyr-export && \
             "
 
       - name: Upload build artifact
