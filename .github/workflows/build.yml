@@ -11,33 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout your repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull ZMK Docker image
-        run: docker pull zmkfirmware/zephyr-west-action-arm:latest
-
-      # This single run command executes the entire setup and build sequence within one shell session.
+      # 2. Build firmware using the official ZMK Action
       - name: Build mediapad3 firmware
-        run: |
-          docker run --rm \
-            --entrypoint /bin/bash \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            -c " \
-              # 1. Upgrade west to meet the ZMK requirement
-              pip3 install west --upgrade && \
-              # 2. Initialize the workspace using the LOCAL west.yml file.
-              west init -l . && \
-              # 3. Download ALL repositories recursively. This is the most robust way to get ZMK/Zephyr source.
-              west update -r && \
-              # 4. Set ZEPHYR_BASE to the expected Zephyr path (zmk/zephyr) and run the build.
-              export ZEPHYR_BASE=zmk/zephyr && \
-              # 5. Build the firmware, specifying the app source directory.
-              west build -s zmk/app -d build -b mediapad3
-            "
+        uses: zmkfirmware/zmk-actions@v1
+        with:
+          board: mediapad3
 
+      # 3. Upload the compiled firmware as an artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
