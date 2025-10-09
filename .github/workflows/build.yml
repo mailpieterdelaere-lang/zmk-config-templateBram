@@ -16,19 +16,37 @@ jobs:
       - name: Pull ZMK Docker image
         run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
+      - name: Initialize workspace
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            init -m https://github.com/zmkfirmware/zmk.git -n .
+
+      - name: Update workspace
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            update
+
+      - name: Export Zephyr
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            zephyr-export
+
       - name: Build mediapad3 firmware
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            /bin/sh -c "\
-              set -e; \
-              west init -m https://github.com/zmkfirmware/zmk.git -n .; \
-              west update; \
-              west zephyr-export; \
-              west build -d build -p mediapad3 \
-            "
+            build -d build -p mediapad3
 
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
