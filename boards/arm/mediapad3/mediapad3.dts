@@ -1,30 +1,20 @@
-/dts-v1/;
-
 / {
-    compatible = "nordic,nrf52840";
-    model = "MediaPad3";
+    compatible = "zmk,keyboard";
 
-    chosen {
-        zephyr,console = &uart0;
+    aliases {
+        keyboard0 = &keyboard;
     };
 
-    gpio_keys {
-        compatible = "gpio-keys";
+    keyboard {
+        compatible = "zmk,keyboard";
+        label = "mediapad3";
 
-        button_1: button_1 {
-            gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-            label = "Button 1";
-            zephyr,code = <KEY_PLAYPAUSE>;
-        };
-        button_2: button_2 {
-            gpios = <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-            label = "Button 2";
-            zephyr,code = <KEY_PREVIOUSSONG>;
-        };
-        button_3: button_3 {
-            gpios = <&gpio0 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-            label = "Button 3";
-            zephyr,code = <KEY_NEXTSONG>;
+        matrix {
+            rows = <3>;
+            columns = <1>;
+            row-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>,
+                        <&gpio0 4 GPIO_ACTIVE_LOW>,
+                        <&gpio0 6 GPIO_ACTIVE_LOW>;
         };
     };
 };
