@@ -32,6 +32,8 @@ jobs:
               west init -l . && \
               # 3. Download dependencies
               west update -r && \
+              # 4. Set environment variables (CRUCIAL step for 'west build' extension)
+              source zmk/zephyr/zephyr-env.sh && \
               # 4. Build the firmware
               west build -d build -b mediapad3 
             "
