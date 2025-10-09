@@ -1,5 +1,5 @@
 manifest:
-  version: 0.1
+  version: "0.12"
   remotes:
     - name: zmk
       url: https://github.com/zmkfirmware/zmk.git
