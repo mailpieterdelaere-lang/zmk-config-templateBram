@@ -27,14 +27,15 @@ jobs:
             zmkfirmware/zephyr-west-action-arm:latest \
             -c " \
               # 1. Upgrade west to meet the ZMK requirement
-              pip3 install --upgrade west && \
+              pip3 install west --upgrade && \
               # 2. Initialize the workspace
               west init -l . && \
-              # 3. Download dependencies
+              # 3. Download the dependencies (ZMK and its submodules, including Zephyr)
               west update -r && \
-             # 4. Build the firmware: Explicitly setting ZEPHYR_BASE=zephyr bypasses the need 
-            #    to source the unavailable 'zephyr-env.sh' script, resolving the 'build' error.
-              ZEPHYR_BASE=zephyr west build -d build -b mediapad3
+              # 4. Build the firmware: Using 'export' ensures ZEPHYR_BASE is set in the session,
+              #    allowing west to recognize the 'build' command extension.
+              export ZEPHYR_BASE=zephyr && \
+              west build -d build -b mediapad3  
             "
 
       - name: Upload build artifact
