@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout your repository
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -35,11 +35,11 @@ jobs:
           pip3 install -r zmk/requirements.txt
           west zephyr-export
 
-      # 5️⃣ Build mediapad3 firmware (point to board folder)
+      # 5️⃣ Build mediapad3 firmware
       - name: Build mediapad3 firmware
         run: |
           west build -s zmk/app -d build/mediapad3 -b mediapad3 -- \
-            -DZMK_CONFIG=$(pwd)/boards/mediapad3
+            -DZMK_CONFIG=$(pwd)/boards/arm/mediapad3
 
       # 6️⃣ Upload firmware artifact
       - name: Upload firmware
