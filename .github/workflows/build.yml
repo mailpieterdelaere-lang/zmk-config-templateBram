@@ -17,7 +17,7 @@ steps:
   - name: Pull ZMK Docker image
     run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-  # All initialization and build steps are combined into one robust 'docker run'
+  # All initialization and build steps are combined into one robust 'docker run' test
   - name: Build mediapad3 firmware
     run: |
       docker run --rm \
