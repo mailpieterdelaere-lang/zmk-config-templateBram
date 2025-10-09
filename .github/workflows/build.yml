@@ -4,29 +4,42 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    container:
-      image: ghcr.io/zmkfirmware/zmk-build-arm:stable
-
     steps:
-      - name: Checkout configuration
+      # 1️⃣ Checkout your repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Initialize west and fetch ZMK
+      # 2️⃣ Install required dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip python3-setuptools git cmake ninja-build gperf \
+              ccache dfu-util device-tree-compiler wget xz-utils file
+
+      # 3️⃣ Install west (Zephyr workspace manager)
+      - name: Install west
+        run: pip3 install west
+
+      # 4️⃣ Initialize ZMK workspace
+      - name: Init and update west
         run: |
           west init -l .
           west update
           west zephyr-export
 
-      - name: Build firmware for mediapad3
+      # 5️⃣ Build firmware for mediapad3
+      - name: Build firmware
         run: |
           west build -s zmk/app -d build/mediapad3 -b mediapad3 -- \
             -DZMK_CONFIG=$(pwd)/config
 
+      # 6️⃣ Upload firmware artifact
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
