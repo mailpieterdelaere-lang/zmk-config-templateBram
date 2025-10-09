@@ -29,7 +29,7 @@ jobs:
               # 1. Upgrade west to meet the ZMK requirement
               pip3 install --upgrade west && \
               # 2. Initialize the workspace using ZMK's manifest URL for reliable cloning into the mounted volume
-              west init -m https://github.com/zmkfirmware/zmk.git --mr main . && \
+              west init -l . && \
               # 3. Download the dependencies (ZMK is cloned to 'zmk/', which contains the Zephyr submodule)
               west update -r && \
               # === DEBUG STEP: Check directory structure ===
