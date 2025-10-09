@@ -20,15 +20,17 @@ jobs:
       - name: Build mediapad3 firmware
         run: |
           docker run --rm \
+            --entrypoint /bin/bash \
             -v "${GITHUB_WORKSPACE}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            bash -c " \
+            -c " \
+              # We must now explicitly call 'west' for all subcommands, since the entrypoint is overridden
               west init -l . && \
               west update -r && \
               west zephyr-export && \
               west build -d build -b mediapad3 \
-            "
+        "
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
