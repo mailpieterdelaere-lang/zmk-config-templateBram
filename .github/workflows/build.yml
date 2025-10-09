@@ -17,30 +17,21 @@ jobs:
       - name: Pull ZMK Docker image
         run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-      - name: Initialize, update and build ZMK
+      - name: Build mediapad3 firmware
         run: |
           docker run --rm \
             -v "${GITHUB_WORKSPACE}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            init -l . && \
-          docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            update -r && \
-          docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            zephyr-export && \
-          docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            build -p mediapad3 -d build
+            /bin/sh -c "\
+              set -e && \
+              west init -l . && \
+              west update -r && \
+              west zephyr-export && \
+              west build -d build -p mediapad3 \
+            "
 
-      - name: Upload build artifacts
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: mediapad3-firmware
