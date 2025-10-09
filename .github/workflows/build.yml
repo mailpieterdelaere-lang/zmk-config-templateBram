@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Install dependencies
+      # 2️⃣ Install system dependencies
       - name: Install dependencies
         run: |
           sudo apt update
@@ -27,14 +27,14 @@ jobs:
         run: pip3 install west
 
       # 4️⃣ Initialize ZMK workspace using local manifest
-      - name: Init and update west
+      - name: Initialize ZMK workspace
         run: |
           west init -l .
-          west update -r west.yml
+          west update
           west zephyr-export
 
-      # 5️⃣ Build firmware for mediapad3
-      - name: Build firmware
+      # 5️⃣ Build mediapad3 firmware for nRF52840
+      - name: Build mediapad3 firmware
         run: |
           west build -s zmk/app -d build/mediapad3 -b mediapad3 -- \
             -DZMK_CONFIG=$(pwd)/config
