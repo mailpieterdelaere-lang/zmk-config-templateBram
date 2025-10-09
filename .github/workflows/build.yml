@@ -29,7 +29,6 @@ jobs:
               west init -l . && \
               west update -r && \
               west zephyr-export && \
-            # overrule step no longer required west build -d build -b mediapad3 \
             "
 
       - name: Upload build artifact
