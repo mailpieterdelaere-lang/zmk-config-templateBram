@@ -31,7 +31,7 @@ jobs:
               # 2. Initialize the workspace using the LOCAL west.yml file
               west init -l . && \
               # 3. Download the main ZMK repository (creates zmk/ directory)
-              west update && \
+               west update -r && \
               # 4. Explicitly clone the submodules (Zephyr/modules) inside the ZMK repository
               git -C zmk submodule update --init --recursive && \
               # 5. Set ZEPHYR_BASE to the expected Zephyr path (zmk/zephyr)
