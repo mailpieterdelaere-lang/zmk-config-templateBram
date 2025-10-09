@@ -11,38 +11,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-    uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Pull ZMK Docker image
-    run: docker pull zmkfirmware/zephyr-west-action-arm:latest
+      - name: Pull ZMK Docker image
+        run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-  # This single run command executes the entire setup and build sequence within one shell session.
-  - name: Build mediapad3 firmware
-    run: |
-      docker run --rm \
-        --entrypoint /bin/bash \
-        -v "${GITHUB_WORKSPACE}:/workspace" \
-        -w /workspace \
-        zmkfirmware/zephyr-west-action-arm:latest \
-        -c " \
-          # 1. Upgrade west to meet the ZMK requirement
-          pip3 install west --upgrade && \
-          # 2. Initialize the workspace using the LOCAL west.yml file.
-          west init -l . && \
-          # 3. Download the main ZMK repository (creates zmk/ directory)
-          west update && \
-          # 4. Explicitly clone the submodules (Zephyr/modules) inside the ZMK repository for reliability.
-          #    This is critical for ZMK/Zephyr setups in Docker.
-          git -C zmk submodule update --init --recursive && \
-          # 5. Set ZEPHYR_BASE to the expected Zephyr path (zmk/zephyr) and run the build.
-          export ZEPHYR_BASE=zmk/zephyr && \
-          # 6. Build the firmware, specifying the app source directory.
-          west build -s zmk/app -d build -b mediapad3
-        "
+      # This single run command executes the entire setup and build sequence within one shell session.
+      - name: Build mediapad3 firmware
+        run: |
+          docker run --rm \
+            --entrypoint /bin/bash \
+            -v "${GITHUB_WORKSPACE}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            -c " \
+              # 1. Upgrade west to meet the ZMK requirement
+              pip3 install west --upgrade && \
+              # 2. Initialize the workspace using the LOCAL west.yml file
+              west init -l . && \
+              # 3. Download the main ZMK repository (creates zmk/ directory)
+              west update && \
+              # 4. Explicitly clone the submodules (Zephyr/modules) inside the ZMK repository
+              git -C zmk submodule update --init --recursive && \
+              # 5. Set ZEPHYR_BASE to the expected Zephyr path (zmk/zephyr)
+              export ZEPHYR_BASE=zmk/zephyr && \
+              # 6. Build the firmware, specifying the app source directory
+              west build -s zmk/app -d build -b mediapad3
+            "
 
-  - name: Upload build artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: mediapad3-firmware
-      path: build/zephyr/zmk.uf2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mediapad3-firmware
+          path: build/zephyr/zmk.uf2
