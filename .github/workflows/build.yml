@@ -32,10 +32,9 @@ jobs:
               west init -l . && \
               # 3. Download dependencies
               west update -r && \
-              # 4. Set environment variables (CRUCIAL step for 'west build' extension)
-              source zmk/zephyr/zephyr-env.sh && \
-              # 4. Build the firmware
-              west build -d build -b mediapad3 
+             # 4. Build the firmware: Explicitly setting ZEPHYR_BASE=zephyr bypasses the need 
+            #    to source the unavailable 'zephyr-env.sh' script, resolving the 'build' error.
+              ZEPHYR_BASE=zephyr west build -d build -b mediapad3
             "
 
       - name: Upload build artifact
