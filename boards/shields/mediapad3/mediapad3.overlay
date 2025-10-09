@@ -1,1 +1,11 @@
-
+/ {
+    key_matrix {
+        compatible = "zmk,matrix-transform";
+        rows = <1>;
+        columns = <3>;
+        row-gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+        col-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>,
+                    <&gpio0 4 GPIO_ACTIVE_LOW>,
+                    <&gpio0 6 GPIO_ACTIVE_LOW>;
+    };
+};
