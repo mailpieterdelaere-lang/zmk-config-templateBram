@@ -16,19 +16,19 @@ jobs:
       - name: Checkout configuration
         uses: actions/checkout@v4
 
-      - name: Initialize west
+      - name: Initialize west and fetch ZMK
         run: |
-          west init -l config
+          west init -l .
           west update
           west zephyr-export
 
-      - name: Build firmware
+      - name: Build firmware for mediapad3
         run: |
-          west build -s zmk/app -d build/left -b nrf52840_dongle -- \
+          west build -s zmk/app -d build/mediapad3 -b mediapad3 -- \
             -DZMK_CONFIG=$(pwd)/config
 
-      - name: Upload firmware artifacts
+      - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zmk-firmware
-          path: build/left/zephyr/zmk.uf2
+          name: mediapad3-firmware
+          path: build/mediapad3/zephyr/zmk.uf2
