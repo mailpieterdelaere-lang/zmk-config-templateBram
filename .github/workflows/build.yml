@@ -33,7 +33,7 @@ jobs:
               # 3. Download dependencies
               west update -r && \
               # 4. Build the firmware
-              west build -d build -b mediapad3 \
+              west build -d build -b mediapad3 
             "
 
       - name: Upload build artifact
