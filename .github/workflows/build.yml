@@ -26,7 +26,7 @@ jobs:
             zmkfirmware/zephyr-west-action-arm:latest \
             -c " \
               # 1. Upgrade west to meet the ZMK requirement
-              pip3 install west --upgrade && \
+              pip3 install --upgrade west && \
               
               # 2. Initialize the workspace using the LOCAL west.yml file
               west init -l . && \
@@ -34,15 +34,20 @@ jobs:
               # 3. Download the main ZMK repository
               west update && \
               
-              # 4. Create the 'zmk' directory explicitly to prevent path errors
+              # 4. Create zmk folder explicitly
               mkdir -p zmk && \
               
-              # 5. Explicitly clone ZMK submodules (Zephyr) for reliability
+              # 5. Fetch ZMK submodules (Zephyr, etc.)
               git -C zmk submodule update --init --recursive && \
               
-              # 6. Set ZEPHYR_BASE and build the firmware
-              export ZEPHYR_BASE=zmk/zephyr && \
-              west build -d build -b mediapad3
+              # 6. Export Zephyr CMake packages (critical!)
+              west zephyr-export && \
+              
+              # 7. Verify that west now knows the build command
+              west --help && \
+              
+              # 8. Build the firmware
+              west build -s zmk/app -d build -b mediapad3
             "
 
       - name: Upload build artifact
