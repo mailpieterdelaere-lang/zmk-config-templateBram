@@ -25,17 +25,21 @@ jobs:
             -v "${GITHUB_WORKSPACE}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            -c " \
+            -c " \ 
               # 1. Upgrade west to meet the ZMK requirement
               pip3 install west --upgrade && \
               # 2. Initialize the workspace
               west init -l . && \
-              # 3. Download the dependencies (ZMK and its submodules, including Zephyr)
+              # 3. Download the dependencies (ZMK is cloned to 'zmk/', which contains the Zephyr submodule)
               west update -r && \
-              # 4. Build the firmware: Using 'export' ensures ZEPHYR_BASE is set in the session,
-              #    allowing west to recognize the 'build' command extension.
-              export ZEPHYR_BASE=zephyr && \
-              west build -d build -b mediapad3  
+              # === DEBUG STEP: Check directory structure ===
+              # This will show you the directory name where Zephyr was cloned.
+              ls -F && \
+              # =============================================
+              # 4. Build the firmware: Set ZEPHYR_BASE to the expected path based on your west.yml
+              #    (Your manifest puts ZMK at 'zmk/', and Zephyr is inside ZMK).
+              export ZEPHYR_BASE=zmk/zephyr && \
+              west build -d build -b mediapad3
             "
 
       - name: Upload build artifact
