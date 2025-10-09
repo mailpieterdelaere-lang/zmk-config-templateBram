@@ -1,0 +1,9 @@
+identifier: mediapad3
+name: MediaPad3
+type: keyboard
+arch: arm
+toolchain: zephyr
+board_root: .
+supported:
+  - usb
+  - ble
