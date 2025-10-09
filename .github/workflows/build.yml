@@ -1,65 +1,34 @@
-name: Build Firmware
+name: Build ZMK Firmware
 
 on:
   push:
+    branches: [main]
   pull_request:
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build ZMK Firmware
+
+    container:
+      image: ghcr.io/zmkfirmware/zmk-build-arm:stable
 
     steps:
-      - name: Checkout repository
+      - name: Checkout configuration
         uses: actions/checkout@v4
 
-      - name: Cache west modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            modules/
-            tools/
-            zephyr/
-            bootloader/
-            zmk/
-          key: ${{ runner.os }}-build-${{ hashFiles('manifest-dir/west.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
+      - name: Initialize west
+        run: |
+          west init -l config
+          west update
+          west zephyr-export
 
-      - name: Initialize west (ZMK build system)
-        uses: docker://zmkfirmware/zephyr-west-action-arm:latest
-        with:
-          args: init "-l config"
+      - name: Build firmware
+        run: |
+          west build -s zmk/app -d build/left -b nrf52840_dongle -- \
+            -DZMK_CONFIG=$(pwd)/config
 
-      - name: Update west dependencies
-        uses: docker://zmkfirmware/zephyr-west-action-arm:latest
-        with:
-          args: update
-
-      - name: Set Zephyr base
-        uses: docker://zmkfirmware/zephyr-west-action-arm:latest
-        with:
-          args: config "--global zephyr.base-prefer configfile"
-
-      - name: Export Zephyr
-        uses: docker://zmkfirmware/zephyr-west-action-arm:latest
-        with:
-          args: zephyr-export
-
-      - name: Build firmware (mediapad3)
-        uses: docker://zmkfirmware/zephyr-west-action-arm:latest
-        with:
-          args: build "-s zmk/app -b mediapad_nrf52840 -- -DSHIELD=mediapad3 -DZMK_CONFIG=/github/workspace/config"
-
-      - name: List Kconfig options
-        run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
-
-      - name: Rename output file
-        run: cp build/zephyr/zmk.uf2 mediapad3_mediapad_nrf52840.uf2
-
-      - name: Upload firmware artifact
+      - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mediapad3_firmware
-          path: mediapad3_mediapad_nrf52840.uf2
+          name: zmk-firmware
+          path: build/left/zephyr/zmk.uf2
