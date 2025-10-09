@@ -1,1 +1,10 @@
-
+manifest:
+  version: 0.1
+  remotes:
+    - name: zmk
+      url: https://github.com/zmkfirmware/zmk.git
+      fetch: true
+  projects:
+    - name: zmk
+      revision: main
+      path: zmk
