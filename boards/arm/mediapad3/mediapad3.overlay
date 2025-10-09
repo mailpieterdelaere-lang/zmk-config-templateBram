@@ -1,25 +1,22 @@
-/ {
-    chosen {
-        zephyr,console = &uart0;
-    };
+# mediapad3.yaml
+board:
+  name: mediapad3
+  mcu: nrf52840
+  doc: "Custom 3-button media pad"
 
-    gpio_keys {
-        compatible = "gpio-keys";
-
-        button_1: button_1 {
-            gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-            label = "Button 1";
-            zephyr,code = <KEY_PLAYPAUSE>;
-        };
-        button_2: button_2 {
-            gpios = <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-            label = "Button 2";
-            zephyr,code = <KEY_PREVIOUSSONG>;
-        };
-        button_3: button_3 {
-            gpios = <&gpio0 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-            label = "Button 3";
-            zephyr,code = <KEY_NEXTSONG>;
-        };
-    };
-};
+# Keymap layers
+keymap:
+  - name: default
+    bindings:
+      - key: D2
+        behavior: &play_pause
+          type: k
+          code: KC_MEDIA_PLAY_PAUSE
+      - key: D4
+        behavior: &back
+          type: k
+          code: KC_MEDIA_PREV_TRACK
+      - key: D6
+        behavior: &forward
+          type: k
+          code: KC_MEDIA_NEXT_TRACK
