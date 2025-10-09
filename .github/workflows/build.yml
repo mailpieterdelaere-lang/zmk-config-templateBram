@@ -14,22 +14,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Build
+      - name: Initialize ZMK workspace
         run: |
-          echo "Using Docker for ZMK build"
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+          zmkfirmware/zephyr-west-action-arm:latest west init -m https://github.com/zmkfirmware/zmk.git -n
+
+      - name: Update ZMK workspace
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+          zmkfirmware/zephyr-west-action-arm:latest west update
+
+      - name: Zephyr export
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+          zmkfirmware/zephyr-west-action-arm:latest west zephyr-export
 
       - name: Build mediapad3 firmware
         run: |
           docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
-          zmkfirmware/zephyr-west-action-arm:latest /bin/bash -c "
-            set -e
-            # Initialize ZMK workspace from official manifest
-            west init -m https://github.com/zmkfirmware/zmk.git -n
-            west update
-            west zephyr-export
-            # Build your custom board
-            west build -d build -p mediapad3
-          "
+          zmkfirmware/zephyr-west-action-arm:latest west build -d build -p mediapad3
 
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
