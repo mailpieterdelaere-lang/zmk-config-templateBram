@@ -9,30 +9,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout repository
-    uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name:Pull ZMK Docker image
-    run: docker pull zmkfirmware/zephyr-west-action-arm:latest
+      - name: Pull ZMK Docker image
+        run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-      - name:Build mediapad3 firmware
-    run: |
-      docker run --rm \
-        -v "${GITHUB_WORKSPACE}:/workspace" \
-        -w /workspace \
-        zmkfirmware/zephyr-west-action-arm:latest \
-        bash -c " \
-          # Removed the redundant 'west' prefix from all commands:
-          init -l . && \
-          update -r && \
-          zephyr-export && \
-          # Corrected -p (pristine) to -b (board) for the build command:
-          build -d build -b mediapad3 \
-        "
+      - name: Build mediapad3 firmware
+        run: |
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            bash -c " \
+              west init -l . && \
+              west update -r && \
+              west zephyr-export && \
+              west build -d build -b mediapad3 \
+            "
 
-  - name: Upload build artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: mediapad3-firmware
-      path: build/zephyr/zmk.uf2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mediapad3-firmware
+          path: build/zephyr/zmk.uf2
