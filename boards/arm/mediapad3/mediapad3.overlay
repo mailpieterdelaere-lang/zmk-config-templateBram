@@ -1,22 +1,42 @@
-# mediapad3.yaml
-board:
-  name: mediapad3
-  mcu: nrf52840
-  doc: "Custom 3-button media pad"
+/ {
+    chosen {
+        zephyr,console = &uart0;
+        zephyr,shell-uart = &uart0;
+    };
 
-# Keymap layers
-keymap:
-  - name: default
-    bindings:
-      - key: D2
-        behavior: &play_pause
-          type: k
-          code: KC_MEDIA_PLAY_PAUSE
-      - key: D4
-        behavior: &back
-          type: k
-          code: KC_MEDIA_PREV_TRACK
-      - key: D6
-        behavior: &forward
-          type: k
-          code: KC_MEDIA_NEXT_TRACK
+    usb {
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <0>;
+    };
+
+    nordic,nrf {
+        bluetooth {
+            status = "okay";
+        };
+    };
+};
+
+/ {
+    mediapad3_keys: keys {
+        compatible = "zmk,keys";
+        pinctrl-0 = <&key_pins>;
+        pinctrl-names = "default";
+        label = "MEDIA_KEYS";
+    };
+};
+
+&key_pins {
+    D2 {
+        gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+        label = "PLAY_PAUSE";
+    };
+    D4 {
+        gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+        label = "BACK";
+    };
+    D6 {
+        gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+        label = "FORWARD";
+    };
+};
