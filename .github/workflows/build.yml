@@ -1,24 +1,22 @@
 name: ZMK Build
 
 on:
-push:
-branches:
-- main
-workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-build:
-runs-on: ubuntu-latest
-
-steps:
-  - name: Checkout repository
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
     uses: actions/checkout@v4
 
-  - name: Pull ZMK Docker image
+      - name:Pull ZMK Docker image
     run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-  # All initialization and build steps are combined into one robust 'docker run' test
-  - name: Build mediapad3 firmware
+      - name:Build mediapad3 firmware
     run: |
       docker run --rm \
         -v "${GITHUB_WORKSPACE}:/workspace" \
