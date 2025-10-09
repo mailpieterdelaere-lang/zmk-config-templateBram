@@ -28,15 +28,13 @@ jobs:
             -c " \
               # 1. Upgrade west to meet the ZMK requirement
               pip3 install west --upgrade && \
-              # 2. Initialize the workspace using the LOCAL west.yml file
+              # 2. Initialize the workspace using the LOCAL west.yml file.
               west init -l . && \
-              # 3. Download the main ZMK repository (creates zmk/ directory)
-               west update zmk && \
-              # 4. Explicitly clone the submodules (Zephyr/modules) inside the ZMK repository
-              git -C zmk submodule update --init --recursive && \
-              # 5. Set ZEPHYR_BASE to the expected Zephyr path (zmk/zephyr)
+              # 3. Download ALL repositories recursively. This is the most robust way to get ZMK/Zephyr source.
+              west update -r && \
+              # 4. Set ZEPHYR_BASE to the expected Zephyr path (zmk/zephyr) and run the build.
               export ZEPHYR_BASE=zmk/zephyr && \
-              # 6. Build the firmware, specifying the app source directory
+              # 5. Build the firmware, specifying the app source directory.
               west build -s zmk/app -d build -b mediapad3
             "
 
