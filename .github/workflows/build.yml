@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # 1️⃣ Checkout your repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -22,25 +22,27 @@ jobs:
           sudo apt install -y python3-pip python3-setuptools git cmake ninja-build gperf \
               ccache dfu-util device-tree-compiler wget xz-utils file
 
-      # 3️⃣ Install west (Zephyr workspace manager)
+      # 3️⃣ Install west
       - name: Install west
-        run: pip3 install west
+        run: pip3 install --upgrade west
 
-      # 4️⃣ Initialize ZMK workspace using local manifest
+      # 4️⃣ Initialize ZMK workspace
       - name: Initialize ZMK workspace
         run: |
           west init -l .
           west update
+          pip3 install --upgrade pip
+          pip3 install -r zmk/requirements.txt
           west zephyr-export
 
-      # 5️⃣ Build mediapad3 firmware for nRF52840
+      # 5️⃣ Build mediapad3 firmware (point to board folder)
       - name: Build mediapad3 firmware
         run: |
           west build -s zmk/app -d build/mediapad3 -b mediapad3 -- \
-            -DZMK_CONFIG=$(pwd)/config
+            -DZMK_CONFIG=$(pwd)/boards/mediapad3
 
       # 6️⃣ Upload firmware artifact
-      - name: Upload firmware artifact
+      - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
           name: mediapad3-firmware
