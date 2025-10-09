@@ -1,9 +1,5 @@
-identifier: mediapad3
-name: MediaPad3
-type: keyboard
-arch: arm
-toolchain: zephyr
-board_root: .
-supported:
-  - usb
-  - ble
+# Basic board info for ZMK
+board:
+  name: mediapad3
+  mcu: nrf52840
+  doc: "Custom 3-button media pad"
