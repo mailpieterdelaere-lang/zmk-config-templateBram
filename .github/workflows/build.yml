@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout your repository
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Install required dependencies
+      # 2️⃣ Install dependencies
       - name: Install dependencies
         run: |
           sudo apt update
@@ -26,10 +26,10 @@ jobs:
       - name: Install west
         run: pip3 install west
 
-      # 4️⃣ Initialize ZMK workspace
+      # 4️⃣ Initialize ZMK workspace using your config/west.yml
       - name: Init and update west
         run: |
-          west init -l .
+          west init -l config -m config/west.yml
           west update
           west zephyr-export
 
