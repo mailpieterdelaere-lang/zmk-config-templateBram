@@ -17,12 +17,12 @@ jobs:
         run: |
           docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            /bin/bash -c "
-            set -e
-            west init -l . && \
-            west update -r && \
-            west zephyr-export && \
-            west build -p mediapad3 -d build
+            sh -c "
+              set -e
+              west init -l . &&
+              west update -r &&
+              west zephyr-export &&
+              west build -p mediapad3 -d build
             "
 
       - name: Upload Firmware
