@@ -55,9 +55,9 @@ jobs:
             zmkfirmware/zephyr-west-action-arm:latest \
             west build -p mediapad3 -d build
 
-      # Upload built firmware artifact
+      # Upload built firmware artifact (new version)
       - name: Upload Firmware
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mediapad3-firmware
           path: build/zephyr/zmk.uf2
