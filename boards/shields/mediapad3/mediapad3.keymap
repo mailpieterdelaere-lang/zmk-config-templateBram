@@ -1,1 +1,13 @@
+/ {
+    keymap {
+        compatible = "zmk,keymap";
 
+        default_layer {
+            bindings = <
+                &kp C(MEDIA_PREV_TRACK)
+                &kp C(MEDIA_PLAY_PAUSE)
+                &kp C(MEDIA_NEXT_TRACK)
+            >;
+        };
+    };
+};
