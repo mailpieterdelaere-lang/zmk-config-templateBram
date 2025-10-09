@@ -13,17 +13,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Initialize west workspace
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest west init -l .
+
+      - name: Update west workspace
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest west update -r
+
+      - name: Zephyr export
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest west zephyr-export
+
       - name: Build mediapad3 firmware
         run: |
           docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            sh -c "
-              set -e
-              west init -l . &&
-              west update -r &&
-              west zephyr-export &&
-              west build -p mediapad3 -d build
-            "
+            zmkfirmware/zephyr-west-action-arm:latest west build -p mediapad3 -d build
 
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
