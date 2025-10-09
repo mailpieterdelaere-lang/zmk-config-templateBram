@@ -1,4 +1,4 @@
-name: Build mediapad3 firmware
+name: Build ZMK Firmware
 
 on:
   push:
@@ -11,43 +11,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # Checkout your repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
+      # Set up Docker
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-    - name: Pull ZMK Docker image
-      run: docker pull zmkfirmware/zephyr-west-action-arm:latest
+      # Initialize West using local manifest
+      - name: West Init
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            west init -l .
 
-    - name: Initialize west workspace
-      run: |
-        docker run --rm -v "${{ github.workspace }}:/workspace" \
-          zmkfirmware/zephyr-west-action-arm:latest \
-          init -m /workspace/west.yml -n /workspace
+      # Update projects
+      - name: West Update
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            west update -r
 
-    - name: Update west projects
-      run: |
-        docker run --rm -v "${{ github.workspace }}:/workspace" \
-          zmkfirmware/zephyr-west-action-arm:latest \
-          update -r
+      # Zephyr export (sets up environment variables)
+      - name: West Zephyr Export
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            west zephyr-export
 
-    - name: Export Zephyr environment
-      run: |
-        docker run --rm -v "${{ github.workspace }}:/workspace" \
-          -w /workspace \
-          zmkfirmware/zephyr-west-action-arm:latest \
-          zephyr-export
+      # Build firmware for mediapad3
+      - name: Build Firmware
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            zmkfirmware/zephyr-west-action-arm:latest \
+            west build -p mediapad3 -d build
 
-    - name: Build firmware for mediapad3
-      run: |
-        docker run --rm -v "${{ github.workspace }}:/workspace" \
-          -w /workspace \
-          zmkfirmware/zephyr-west-action-arm:latest \
-          build -p mediapad3 -d build
-
-    - name: Upload built firmware
-      uses: actions/upload-artifact@v4
-      with:
-        name: mediapad3-firmware
-        path: build/zephyr/zmk.uf2
+      # Upload built firmware artifact
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: mediapad3-firmware
+          path: build/zephyr/zmk.uf2
