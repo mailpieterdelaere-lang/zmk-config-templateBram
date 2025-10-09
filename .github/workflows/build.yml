@@ -1,47 +1,40 @@
 name: ZMK Build
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+push:
+branches:
+- main
+workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+build:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
-      - name: Pull ZMK Docker image
-        run: docker pull zmkfirmware/zephyr-west-action-arm:latest
+  - name: Pull ZMK Docker image
+    run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-      - name: Build mediapad3 firmware
-        run: |
-          docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            west init -l . && \
-            docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            west update -r && \
-            docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            west zephyr-export && \
-            docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            west build -d build -p mediapad3
+  # All initialization and build steps are combined into one robust 'docker run'
+  - name: Build mediapad3 firmware
+    run: |
+      docker run --rm \
+        -v "${GITHUB_WORKSPACE}:/workspace" \
+        -w /workspace \
+        zmkfirmware/zephyr-west-action-arm:latest \
+        bash -c " \
+          # Removed the redundant 'west' prefix from all commands:
+          init -l . && \
+          update -r && \
+          zephyr-export && \
+          # Corrected -p (pristine) to -b (board) for the build command:
+          build -d build -b mediapad3 \
+        "
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mediapad3-firmware
-          path: build/zephyr/zmk.uf2
+  - name: Upload build artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: mediapad3-firmware
+      path: build/zephyr/zmk.uf2
