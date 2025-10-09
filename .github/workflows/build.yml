@@ -26,11 +26,11 @@ jobs:
       - name: Install west
         run: pip3 install west
 
-      # 4️⃣ Initialize ZMK workspace using your config/west.yml
+      # 4️⃣ Initialize ZMK workspace using local manifest
       - name: Init and update west
         run: |
-          west init -m config/west.yml
-          west update
+          west init -l .
+          west update -r config/west.yml
           west zephyr-export
 
       # 5️⃣ Build firmware for mediapad3
