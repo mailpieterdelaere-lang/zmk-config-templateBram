@@ -32,7 +32,9 @@ jobs:
               west init -l . && \
               # 3. Download dependencies
               west update && \
-              # 4. Build the firmware
+              # 4. Source the Zephyr environment to ensure 'west build' is available
+              source /opt/zephyr-sdk/environment-setup.sh && \
+              # 5. Build the firmware
               west build -d build -b mediapad3
             "
 
