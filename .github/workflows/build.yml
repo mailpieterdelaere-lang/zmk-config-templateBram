@@ -25,6 +25,7 @@ jobs:
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
             -c "\
+              pip3 install west --upgrade && \
               west init -l . && \
               west update -r && \
               west zephyr-export && \
