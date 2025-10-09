@@ -17,7 +17,7 @@ jobs:
       - name: Pull ZMK Docker image
         run: docker pull zmkfirmware/zephyr-west-action-arm:latest
 
-      # Fix: Override the 'west' ENTRYPOINT with /bin/bash, then explicitly call 'west' subcommands.
+      # Fix: Override the 'west' ENTRYPOINT, upgrade west, and ensure environment setup.
       - name: Build mediapad3 firmware
         run: |
           docker run --rm \
@@ -25,20 +25,18 @@ jobs:
             -v "${GITHUB_WORKSPACE}:/workspace" \
             -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            -c " \ 
+            -c " \
               # 1. Upgrade west to meet the ZMK requirement
-              pip3 install west --upgrade && \
-              # 2. Initialize the workspace (required by west for context)
-              west init -l . && \
+              pip3 install --upgrade west && \
+              # 2. Initialize the workspace using ZMK's manifest URL for reliable cloning into the mounted volume
+              west init -m https://github.com/zmkfirmware/zmk.git --mr main . && \
               # 3. Download the dependencies (ZMK is cloned to 'zmk/', which contains the Zephyr submodule)
               west update -r && \
               # === DEBUG STEP: Check directory structure ===
-              # This will show you the directory name where Zephyr was cloned.
               ls -F && \
               # =============================================
-              # 4. Build the firmware: Set ZEPHYR_BASE using an absolute path for reliability.
-              #    Based on your west.yml, the path is expected to be /workspace/zmk/zephyr.
-              export ZEPHYR_BASE=\"/workspace/zmk/zephyr\" && \
+              # 4. Build the firmware: Set ZEPHYR_BASE to the expected path (zmk/zephyr)
+              export ZEPHYR_BASE=zmk/zephyr && \
               west build -d build -b mediapad3
             "
 
