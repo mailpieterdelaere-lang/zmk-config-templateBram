@@ -1,62 +1,55 @@
-name: Build mediapad3
+name: ZMK Build
 
 on:
   push:
     branches:
       - main
   pull_request:
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build mediapad3 firmware
 
     steps:
-      # Checkout your repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      # Cache modules to speed up builds
-      - name: Cache ZMK and Zephyr modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            modules/
-            tools/
-            zephyr/
-            zmk/
-          key: ${{ runner.os }}-zmk-${{ hashFiles('west.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-zmk-
+    - name: Set up Python 3
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
 
-      # Initialize west workspace
-      - name: Initialize west
-        run: docker run --rm -v "${{ github.workspace }}:/workspace" zmkfirmware/zephyr-west-action-arm:latest init -l /workspace
+    - name: Install pip packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt || true
 
-      # Update west projects
-      - name: Update west dependencies
-        run: docker run --rm -v "${{ github.workspace }}:/workspace" zmkfirmware/zephyr-west-action-arm:latest update
+    - name: Initialize west workspace
+      run: |
+        docker run --rm -v "${{ github.workspace }}:/workspace" \
+          zmkfirmware/zephyr-west-action-arm:latest \
+          init -m /workspace/west.yml -n /workspace
 
-      # Export Zephyr build environment
-      - name: Zephyr export
-        run: docker run --rm -v "${{ github.workspace }}:/workspace" zmkfirmware/zephyr-west-action-arm:latest zephyr-export
+    - name: Update west dependencies
+      run: |
+        docker run --rm -v "${{ github.workspace }}:/workspace" \
+          zmkfirmware/zephyr-west-action-arm:latest \
+          update -r
 
-      # Build the firmware
-      - name: Build mediapad3 firmware
-        run: docker run --rm -v "${{ github.workspace }}:/workspace" zmkfirmware/zephyr-west-action-arm:latest build -s zmk/app -b mediapad3 -- -DSHIELD=mediapad3 -DZMK_CONFIG=/workspace/config
+    - name: Zephyr export
+      run: |
+        docker run --rm -v "${{ github.workspace }}:/workspace" \
+          zmkfirmware/zephyr-west-action-arm:latest \
+          zephyr-export
 
-      # Display Kconfig for debugging
-      - name: Show Kconfig
-        run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
+    - name: Build firmware
+      run: |
+        docker run --rm -v "${{ github.workspace }}:/workspace" \
+          zmkfirmware/zephyr-west-action-arm:latest \
+          build /workspace/app -b mediapad3
 
-      # Rename the UF2 file
-      - name: Rename firmware file
-        run: cp build/zephyr/zmk.uf2 mediapad3.uf2
-
-      # Upload firmware as artifact
-      - name: Upload firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: mediapad3-firmware
-          path: mediapad3.uf2
+    - name: Upload firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: mediapad3-firmware
+        path: app/build/mediapad3.uf2
