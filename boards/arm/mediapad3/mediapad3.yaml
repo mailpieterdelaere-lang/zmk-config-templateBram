@@ -1,5 +1,22 @@
-# Basic board info for ZMK
+# mediapad3.yaml
 board:
   name: mediapad3
   mcu: nrf52840
   doc: "Custom 3-button media pad"
+
+# Keymap layers
+keymap:
+  - name: default
+    bindings:
+      - key: D2
+        behavior: &play_pause
+          type: k
+          code: KC_MEDIA_PLAY_PAUSE
+      - key: D4
+        behavior: &back
+          type: k
+          code: KC_MEDIA_PREV_TRACK
+      - key: D6
+        behavior: &forward
+          type: k
+          code: KC_MEDIA_NEXT_TRACK
