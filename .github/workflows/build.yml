@@ -1,4 +1,4 @@
-name: Build ZMK Firmware
+name: ZMK Build
 
 on:
   push:
@@ -9,44 +9,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Initialize west workspace
+      - name: Set up Docker Build
         run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest init -l .
-
-      - name: Update west workspace
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest update -r
-
-      - name: Zephyr export
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest zephyr-export
+          echo "Using Docker for ZMK build"
 
       - name: Build mediapad3 firmware
         run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest build -p mediapad3 -d build
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+          zmkfirmware/zephyr-west-action-arm:latest /bin/bash -c "
+            set -e
+            # Initialize ZMK workspace from official manifest
+            west init -m https://github.com/zmkfirmware/zmk.git -n
+            west update
+            west zephyr-export
+            # Build your custom board
+            west build -d build -p mediapad3
+          "
 
-      - name: Upload firmware artifact
+      - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: mediapad3-firmware
-          path: build/zephyr/zephyr.hex
+          path: build/zephyr/zmk.uf2
