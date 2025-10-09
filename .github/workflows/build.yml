@@ -1,9 +1,8 @@
-name: Build ZMK Firmware
+name: ZMK Build
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
 
 jobs:
@@ -14,43 +13,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Initialize west workspace
-      - name: West Init
+      - name: Build mediapad3 firmware
         run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
             zmkfirmware/zephyr-west-action-arm:latest \
-            init -l .
+            /bin/bash -c "
+            set -e
+            west init -l . && \
+            west update -r && \
+            west zephyr-export && \
+            west build -p mediapad3 -d build
+            "
 
-      # Update west projects
-      - name: West Update
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            update -r
-
-      # Zephyr export
-      - name: West Zephyr Export
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            zephyr-export
-
-      # Build firmware
-      - name: Build Firmware
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            zmkfirmware/zephyr-west-action-arm:latest \
-            build -p mediapad3 -d build
-
-      # Upload firmware
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
